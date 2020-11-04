@@ -13,18 +13,18 @@ public class Main {
     public static void main(String[] args) {
         ArrayList<String> states = new ArrayList<String>(Arrays.asList(readStatesFromFile()));
         ArrayList<String> alphabet = new ArrayList<String>(Arrays.asList(readAlphabetFromFile()));
-        ArrayList<String> initialStates = new ArrayList<String>(Arrays.asList(readInitialStatesFromFile()));
+        String initialState= readInitialStateFromFile();
         ArrayList<String> finalStates = new ArrayList<String>(Arrays.asList(readStatesFromFile()));
         HashMap<Pair, ArrayList<String>> transitions = readTransitionsFromFile();
 
 
         System.out.println("States: " + states);
         System.out.println("Alphabet: " + alphabet);
-        System.out.println("Initial States: " + initialStates);
+        System.out.println("Initial State: " + initialState);
         System.out.println("Final States: " + finalStates);
         System.out.println("Transitions: " + transitions);
 
-        FiniteAutomaton finiteAutomaton = new FiniteAutomaton(states, alphabet, transitions, initialStates, finalStates);
+        FiniteAutomaton finiteAutomaton = new FiniteAutomaton(states, alphabet, transitions, initialState, finalStates);
 
         if(finiteAutomaton.isDeterministic())
             System.out.println("FA is deterministic");
@@ -74,8 +74,8 @@ public class Main {
         return alphabet;
     }
 
-    private static String[] readInitialStatesFromFile() {
-        String[] initialStates = new String[0];
+    private static String readInitialStateFromFile() {
+        String initialState = null;
         BufferedReader reader;
         try {
             reader = new BufferedReader(new FileReader("fa.in"));
@@ -83,7 +83,7 @@ public class Main {
             int lineIndex = 0;
             while(line != null){
                 if(lineIndex == 2)
-                    initialStates = line.split(":")[1].split(",");
+                    initialState = line.split(":")[1];
                 line = reader.readLine();
                 lineIndex++;
             }
@@ -92,7 +92,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return initialStates;
+        return initialState;
     }
 
     private static String[] readFinalStatesFromFile() {

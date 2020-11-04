@@ -9,10 +9,10 @@ public class FiniteAutomaton {
     private ArrayList<String> states;
     private ArrayList<String> alphabet;
     private HashMap<Pair, ArrayList<String>> transitions;
-    private ArrayList<String> initialState;
+    private String initialState;
     private ArrayList<String> finalStates;
 
-    public FiniteAutomaton(ArrayList<String> states, ArrayList<String> alphabet, HashMap<Pair, ArrayList<String>> transitions, ArrayList<String> initialState, ArrayList<String> finalStates) {
+    public FiniteAutomaton(ArrayList<String> states, ArrayList<String> alphabet, HashMap<Pair, ArrayList<String>> transitions, String initialState, ArrayList<String> finalStates) {
         this.states = states;
         this.alphabet = alphabet;
         this.transitions = transitions;
@@ -44,11 +44,11 @@ public class FiniteAutomaton {
         this.transitions = transitions;
     }
 
-    public ArrayList<String> getInitialState() {
+    public String getInitialState() {
         return initialState;
     }
 
-    public void setInitialState(ArrayList<String> initialState) {
+    public void setInitialState(String initialState) {
         this.initialState = initialState;
     }
 
