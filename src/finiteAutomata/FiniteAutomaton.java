@@ -65,7 +65,28 @@ public class FiniteAutomaton {
             if(e.getValue().size() > 1)
                 return false;
         }
+
         return true;
+    }
+
+    public boolean sequenceAccepted(String sequence){
+        return isAccepted(sequence, getInitialState());
+    }
+
+    public boolean isAccepted(String sequence, String startingState){
+        String letterFromAlphabet = String.valueOf(sequence.charAt(0));
+        for(Map.Entry<Pair, ArrayList<String>> e : transitions.entrySet()){
+            if(e.getKey().startingState.equals(startingState) && e.getKey().symbol.equals(letterFromAlphabet)){
+                for(String nextState: e.getValue()){
+                    if(sequence.length() == 1 && !finalStates.contains(nextState))
+                        return false;
+                    if(sequence.length() == 1 && finalStates.contains(nextState))
+                        return true;
+                    if(isAccepted(sequence.substring(1), nextState)) return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

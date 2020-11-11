@@ -1,21 +1,29 @@
 import finiteAutomata.FiniteAutomaton;
-import finiteAutomata.Pair;
+import finiteAutomata.validator.FAValidator;
+import scanner.PIF;
+import scanner.Pair;
+import scanner.Scanner;
+import symbolTable.BinarySearchTree;
+import symbolTable.SymbolTable;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static finiteAutomata.FAUtils.*;
+import static scanner.ScannerUtils.*;
+
 public class Main {
 
     public static void main(String[] args) {
-        ArrayList<String> states = new ArrayList<String>(Arrays.asList(readStatesFromFile()));
-        ArrayList<String> alphabet = new ArrayList<String>(Arrays.asList(readAlphabetFromFile()));
-        String initialState= readInitialStateFromFile();
-        ArrayList<String> finalStates = new ArrayList<String>(Arrays.asList(readStatesFromFile()));
-        HashMap<Pair, ArrayList<String>> transitions = readTransitionsFromFile();
+
+    	//FA part
+        ArrayList<String> states = new ArrayList<>(Arrays.asList(readStatesFromFile("fa.in")));
+        ArrayList<String> alphabet = new ArrayList<>(Arrays.asList(readAlphabetFromFile("fa.in")));
+        String initialState = readInitialStateFromFile("fa.in");
+        ArrayList<String> finalStates = new ArrayList<>(Arrays.asList(readFinalStatesFromFile("fa.in")));
+        HashMap<finiteAutomata.Pair, ArrayList<String>> transitions = readTransitionsFromFile("fa.in");
 
 
         System.out.println("States: " + states);
@@ -25,125 +33,114 @@ public class Main {
         System.out.println("Transitions: " + transitions);
 
         FiniteAutomaton finiteAutomaton = new FiniteAutomaton(states, alphabet, transitions, initialState, finalStates);
+        FAValidator validator = new FAValidator();
+        validator.validate(finiteAutomaton);
 
-        if(finiteAutomaton.isDeterministic())
+        if (finiteAutomaton.isDeterministic())
             System.out.println("FA is deterministic");
         else
             System.out.println("FA is not deterministic");
+        if (finiteAutomaton.sequenceAccepted("00001111"))
+            System.out.println("Sequence accepted");
+        else
+            System.out.println("Sequence not accepted");
 
-    }
 
-    private static String[] readStatesFromFile() {
-        String[] states = new String[0];
+        if(checkIdentifierWithFA("aAb1098"))
+			System.out.println("is iden");
+        else
+			System.out.println("is not iden");
+
+		if(checkIntegerWithFA("+0109"))
+			System.out.println("is int");
+		else
+			System.out.println("is not int");
+
+
+		
+        //scanner part
+        BinarySearchTree binarySearchTree = new BinarySearchTree();
+        SymbolTable symbolTable = new SymbolTable(binarySearchTree);
+        PIF PIF = new PIF();
+
+
+        ArrayList<String> separators = new ArrayList<>(Arrays.asList(readSeparatorsFromFile()));
+
+        ArrayList<String> operators = new ArrayList<>(Arrays.asList(readOperatorsFromFile()));
+
+        ArrayList<String> reservedWords = new ArrayList<>(Arrays.asList(readReservedWordsFromFile()));
+
+        Scanner scanner = new Scanner(separators, operators);
         BufferedReader reader;
         try {
-            reader = new BufferedReader(new FileReader("fa.in"));
+
+
+            String inputProgram = chooseInputProgram();
+
+            reader = new BufferedReader(new FileReader(inputProgram));
             String line = reader.readLine();
-            int lineIndex = 0;
-            while(line != null){
-                if(lineIndex == 0)
-                    states = line.split(":")[1].split(",");
-                line = reader.readLine();
-                lineIndex++;
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return states;
-    }
+            int lineIndex = 1;
+            while (line != null) {
+                for (String token : scanner.getTokensFromLine(line)) {
+                    if (isOperator(token, operators) || isSeparator(token, separators) || isReservedWord(token, reservedWords)) {
+                        PIF.add(new Pair(token, -1));
 
-    private static String[] readAlphabetFromFile() {
-        String[] alphabet = new String[0];
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader("fa.in"));
-            String line = reader.readLine();
-            int lineIndex = 0;
-            while(line != null){
-                if(lineIndex == 1)
-                    alphabet = line.split(":")[1].split(",");
-                line = reader.readLine();
-                lineIndex++;
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return alphabet;
-    }
-
-    private static String readInitialStateFromFile() {
-        String initialState = null;
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader("fa.in"));
-            String line = reader.readLine();
-            int lineIndex = 0;
-            while(line != null){
-                if(lineIndex == 2)
-                    initialState = line.split(":")[1];
-                line = reader.readLine();
-                lineIndex++;
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return initialState;
-    }
-
-    private static String[] readFinalStatesFromFile() {
-        String[] finalStates = new String[0];
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader("fa.in"));
-            String line = reader.readLine();
-            int lineIndex = 0;
-            while(line != null){
-                if(lineIndex == 4)
-                    finalStates = line.split(":")[1].split(",");
-                line = reader.readLine();
-                lineIndex++;
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return finalStates;
-    }
-
-    private static HashMap<Pair, ArrayList<String>> readTransitionsFromFile() {
-        HashMap<Pair, ArrayList<String>> transitions = new HashMap<>();
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader("fa.in"));
-            String line = reader.readLine();
-            int lineIndex = 0;
-            while(line != null){
-                if(lineIndex == 3)
-                {
-                    String[] transitionStrings = line.split(":")[1].split(";");
-                    for(String transitionString: transitionStrings) {
-                        String[] elements = transitionString.split("-");
-                        Pair pair = new Pair(elements[0], elements[1]);
-                        String[] aux = elements[2].split(",");
-                        ArrayList<String> states = new ArrayList<String>(Arrays.asList(aux));
-
-                        transitions.put(pair, states);
+                    } else {
+                        //if (isConstant(token) || isIdentifier(token)) {
+						if (isConstant(token) || checkIdentifierWithFA(token) || checkIntegerWithFA(token)) {
+                            symbolTable.insert(token);
+                            int indexInST = symbolTable.search(token);
+                            //if (isConstant(token))
+							if (isConstant(token) || checkIntegerWithFA(token))
+                                PIF.add(new Pair("const", indexInST));
+                            else
+                                PIF.add(new Pair("Id", indexInST));
+                        } else {
+                            if (!token.equals(" "))
+                                System.out.println("Lexical error on line " + lineIndex + ": " + token);
+                        }
                     }
                 }
+
                 line = reader.readLine();
                 lineIndex++;
             }
-
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return transitions;
+        writeToPIFFile(PIF);
+        writeToSTFile(symbolTable);
+
     }
+
+    private static boolean checkIdentifierWithFA(String sequence){
+		ArrayList<String> states = new ArrayList<>(Arrays.asList(readStatesFromFile("identifier.in")));
+		ArrayList<String> alphabet = new ArrayList<>(Arrays.asList(readAlphabetFromFile("identifier.in")));
+		String initialState = readInitialStateFromFile("identifier.in");
+		ArrayList<String> finalStates = new ArrayList<>(Arrays.asList(readFinalStatesFromFile("identifier.in")));
+		HashMap<finiteAutomata.Pair, ArrayList<String>> transitions = readTransitionsFromFile("identifier.in");
+
+		FiniteAutomaton finiteAutomaton = new FiniteAutomaton(states, alphabet, transitions, initialState, finalStates);
+		FAValidator validator = new FAValidator();
+		validator.validate(finiteAutomaton);
+
+		return finiteAutomaton.sequenceAccepted(sequence);
+	}
+
+	private static boolean checkIntegerWithFA(String sequence){
+		ArrayList<String> states = new ArrayList<>(Arrays.asList(readStatesFromFile("integer.in")));
+		ArrayList<String> alphabet = new ArrayList<>(Arrays.asList(readAlphabetFromFile("integer.in")));
+		String initialState = readInitialStateFromFile("integer.in");
+		ArrayList<String> finalStates = new ArrayList<>(Arrays.asList(readFinalStatesFromFile("integer.in")));
+		HashMap<finiteAutomata.Pair, ArrayList<String>> transitions = readTransitionsFromFile("integer.in");
+
+		FiniteAutomaton finiteAutomaton = new FiniteAutomaton(states, alphabet, transitions, initialState, finalStates);
+		FAValidator validator = new FAValidator();
+		validator.validate(finiteAutomaton);
+
+		return finiteAutomaton.sequenceAccepted(sequence);
+	}
+
+
 }
