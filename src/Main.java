@@ -40,7 +40,7 @@ public class Main {
             System.out.println("FA is deterministic");
         else
             System.out.println("FA is not deterministic");
-        if (finiteAutomaton.sequenceAccepted("00001111"))
+        if (finiteAutomaton.sequenceAccepted("s"))
             System.out.println("Sequence accepted");
         else
             System.out.println("Sequence not accepted");
@@ -51,13 +51,13 @@ public class Main {
         else
 			System.out.println("is not iden");
 
-		if(checkIntegerWithFA("+0109"))
+		if(checkIntegerWithFA("-109"))
 			System.out.println("is int");
 		else
 			System.out.println("is not int");
 
 
-		
+
         //scanner part
         BinarySearchTree binarySearchTree = new BinarySearchTree();
         SymbolTable symbolTable = new SymbolTable(binarySearchTree);

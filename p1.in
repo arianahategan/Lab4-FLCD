@@ -4,7 +4,7 @@ INT b;
 INT c;
 INT max;
 a:=10;
-b:=20;
+b:=-30;
 c:=0;
 max:=a;
 IF (max<b) {max:=b;}

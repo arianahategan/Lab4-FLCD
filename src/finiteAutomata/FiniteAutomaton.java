@@ -70,23 +70,48 @@ public class FiniteAutomaton {
     }
 
     public boolean sequenceAccepted(String sequence){
-        return isAccepted(sequence, getInitialState());
+        if(sequence.length() > 0)
+            return isAccepted(sequence, getInitialState());
+        else
+            return false;
     }
 
-    public boolean isAccepted(String sequence, String startingState){
-        String letterFromAlphabet = String.valueOf(sequence.charAt(0));
+    private ArrayList<String> getPair(String state, String symbol){
         for(Map.Entry<Pair, ArrayList<String>> e : transitions.entrySet()){
-            if(e.getKey().startingState.equals(startingState) && e.getKey().symbol.equals(letterFromAlphabet)){
-                for(String nextState: e.getValue()){
-                    if(sequence.length() == 1 && !finalStates.contains(nextState))
-                        return false;
-                    if(sequence.length() == 1 && finalStates.contains(nextState))
-                        return true;
-                    if(isAccepted(sequence.substring(1), nextState)) return true;
+            if(e.getKey().startingState.equals(state) && e.getKey().symbol.equals(symbol))
+                return e.getValue();
+        }
+
+        return null;
+    }
+
+    public boolean isAccepted(String sequence, String currentState){
+        String letterFromAlphabet = String.valueOf(sequence.charAt(0));
+        ArrayList<String> next = getPair(currentState, letterFromAlphabet);
+        if(next != null){
+            for(String s: next){
+                if(finalStates.contains(s)){
+                    return true;
                 }
+                if(sequence.length() > 1 && isAccepted(sequence.substring(1), s))
+                    return true;
             }
         }
         return false;
+
+
+//        for(Map.Entry<Pair, ArrayList<String>> e : transitions.entrySet()){
+//            if(e.getKey().startingState.equals(startingState) && e.getKey().symbol.equals(letterFromAlphabet)){
+//                for(String nextState: e.getValue()){
+//                    if(sequence.length() == 1 && !finalStates.contains(nextState))
+//                        return false;
+//                    if(sequence.length() == 1 && finalStates.contains(nextState))
+//                        return true;
+//                    if(isAccepted(sequence.substring(1), nextState)) return true;
+//                }
+//            }
+//        }
+//        return false;
     }
 
     @Override
